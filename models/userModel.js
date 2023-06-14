@@ -83,7 +83,7 @@ const userSchema = new mongoose.Schema({
 
   suspension: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 
   active: {

@@ -109,7 +109,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
       //----------CHECK FOR EMAIL---------------
       if (signup.email) {
-        data.suspension = false;
+        data.suspension = true;
       }
     }
 

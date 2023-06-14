@@ -264,38 +264,6 @@ exports.getDepositList = catchAsync(async (req, res, next) => {
   });
 });
 
-const deleteActiveDeposit = async (id, time, next) => {
-  const activeResult = await Active.findById(id);
-  if (activeResult) {
-    await Wallet.findByIdAndUpdate(activeResult.walletId, {
-      $inc: {
-        balance: activeResult.amount + activeResult.earning,
-        amountDeposited: activeResult.amount * -1,
-      },
-    });
-
-    await User.findOneAndUpdate(
-      { username: activeResult.username },
-      {
-        $inc: {
-          totalBalance: activeResult.amount,
-        },
-      }
-    );
-
-    await Active.findByIdAndDelete(activeResult._id);
-    const user = await User.findOne({ username: activeResult.username });
-    sendTransactionEmail(
-      user,
-      `investment-completion`,
-      activeResult.amount,
-      next
-    );
-
-    console.log(`A plan has completed successfully`);
-  }
-};
-
 exports.getHistory = catchAsync(async (req, res, next) => {
   const result = new APIFeatures(History.find(), req.query)
     .filter()
@@ -775,3 +743,34 @@ exports.continueEarnings = catchAsync(async (req, res, next) => {
   next();
 });
 //
+
+const deleteActiveDeposit = async (id, time, next) => {
+  const activeResult = await Active.findById(id);
+  if (activeResult) {
+    await Wallet.findByIdAndUpdate(activeResult.walletId, {
+      $inc: {
+        balance: activeResult.amount + activeResult.earning,
+      },
+    });
+
+    await User.findOneAndUpdate(
+      { username: activeResult.username },
+      {
+        $inc: {
+          totalBalance: activeResult.amount,
+        },
+      }
+    );
+
+    await Active.findByIdAndDelete(activeResult._id);
+    const user = await User.findOne({ username: activeResult.username });
+    sendTransactionEmail(
+      user,
+      `investment-completion`,
+      activeResult.amount,
+      next
+    );
+
+    console.log(`A plan has completed successfully`);
+  }
+};
